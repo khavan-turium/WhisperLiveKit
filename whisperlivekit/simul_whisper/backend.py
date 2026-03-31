@@ -112,9 +112,12 @@ class SimulStreamingOnlineProcessor:
             if not timestamped_words:
                 return [], self.end
 
-            if self.model.cfg.language == "auto" and timestamped_words[0].detected_language is None:
-                self.buffer.extend(timestamped_words)
-                return [], self.end
+            # Language-detection gate removed: tokens with detected_language=None are safe
+            # downstream (metadata only). Blocking here caused empty lines for the first
+            # ~3s of audio with lan="auto" and discarded buffered tokens on detection.
+            # if self.model.cfg.language == "auto" and timestamped_words[0].detected_language is None:
+            #     self.buffer.extend(timestamped_words)
+            #     return [], self.end
 
             self.buffer = []
             return timestamped_words, self.end

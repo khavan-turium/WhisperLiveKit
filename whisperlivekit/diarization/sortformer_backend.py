@@ -227,6 +227,16 @@ class SortformerDiarizationOnline:
         self._chunk_index += 1
         return new_segments
 
+    async def flush(self):
+        """Process any remaining buffered audio, zero-padding to chunk threshold."""
+        if len(self.buffer_audio) == 0:
+            return []
+        threshold = int(self.chunk_duration_seconds * self.sample_rate)
+        if len(self.buffer_audio) < threshold:
+            padding = np.zeros(threshold - len(self.buffer_audio), dtype=np.float32)
+            self.buffer_audio = np.concatenate([self.buffer_audio, padding])
+        return await self.diarize()
+
     def _process_predictions(self):
         """Process model predictions and convert to speaker segments."""
         preds_np = self.total_preds[0].cpu().numpy()

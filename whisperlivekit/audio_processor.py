@@ -423,6 +423,17 @@ class AudioProcessor:
             try:
                 item = await get_all_from_queue(self.diarization_queue)
                 if item is SENTINEL:
+                    # Flush remaining audio before stopping so the final partial
+                    # chunk (up to ~1s) gets speaker attribution.
+                    try:
+                        diarization_segments = await self.diarization.flush()
+                        if diarization_segments:
+                            diar_end = max(getattr(s, "end", 0.0) for s in diarization_segments)
+                            async with self.lock:
+                                self.state.new_diarization = diarization_segments
+                                self.state.end_attributed_speaker = max(self.state.end_attributed_speaker, diar_end)
+                    except Exception as e:
+                        logger.warning(f"Diarization flush failed: {e}")
                     break
                 elif isinstance(item, Silence):
                     if item.has_ended:
