@@ -30,7 +30,7 @@ class WhisperLiveKitConfig:
     vad: bool = True
     pcm_input: bool = False
     disable_punctuation_split: bool = False
-    diarization_backend: str = "diart"
+    diarization_backend: str = "sortformer"
     backend_policy: str = "simulstreaming"
     backend: str = "auto"
 

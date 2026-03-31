@@ -638,7 +638,7 @@ async def _transcribe_files(parsed):
 
         async with TestHarness(**kwargs) as h:
             await h.feed(audio_path, speed=0)
-            await h.drain(5.0)
+            await h.drain(120.0)
             result = await h.finish(timeout=120)
 
         duration = len(load_audio_pcm(audio_path)) / (16000 * 2)
